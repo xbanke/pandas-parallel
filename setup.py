@@ -24,7 +24,7 @@ setup(
     license='MIT',
     packages=['pd_parallel'],
     keywords=['pandas', 'parallel'],
-    install_requires=['pandas', 'numpy', 'dill'],
+    install_requires=['pandas', 'dill'],
     zip_safe=False,
     include_package_data=True,
     classifiers=[
