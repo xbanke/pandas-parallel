@@ -55,7 +55,7 @@ def df_group_apply_parallel(df_group: GroupBy, func, *args, n_workers=None, prog
     res_dict, err_dict = {}, {}
     for key, res in to_do:
         try:
-            res_dict[key] = res.get(0xffff)
+            res_dict[key] = res.get(0xffffff)
         except KeyboardInterrupt:
             print('Job canceled, only part of the result will returned!')
             break
