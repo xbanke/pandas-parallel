@@ -13,19 +13,19 @@ import numpy as np
 import pandas as pd
 from pandas.core.groupby import GroupBy
 
-import dill
+# import dill
 from tqdm import tqdm
 
 from .utils import get_worker_count
 
 
-def job_worker(f_pickled, df: pd.DataFrame, *args, **kwargs):
-    func = dill.loads(f_pickled)
-    ret = func(df, *args, **kwargs)
-    return ret
+# def job_worker(f_pickled, df: pd.DataFrame, *args, **kwargs):
+#     func = dill.loads(f_pickled)
+#     ret = func(df, *args, **kwargs)
+#     return ret
 
 
-def concat(res_dict: dict, with_keys=True, **kwargs):
+def concat(res_dict: dict, with_keys=False):
     if not res_dict:
         return
     k, v = res_dict.popitem()
@@ -33,19 +33,19 @@ def concat(res_dict: dict, with_keys=True, **kwargs):
     if isinstance(v, (pd.DataFrame, pd.Series)):
         if not with_keys:
             res_dict = list(res_dict.values())
-        res = pd.concat(res_dict, **kwargs)
+        res = pd.concat(res_dict)
     else:
         res = pd.Series(res_dict)
     return res
 
 
-def df_group_apply_parallel(df_group: GroupBy, func, *args, n_workers=None, progress=False, concat_kws=None, **kwargs):
+def df_group_apply_parallel(df_group: GroupBy, func, *args, n_workers=None, progress=False, concat_keys=True, **kwargs):
     n_workers = get_worker_count(n_workers)
     if n_workers == 1:
         return df_group.apply(func, *args, **kwargs)
-    f_pickled = dill.dumps(func)
+    # f_pickled = dill.dumps(func)
     pool = multiprocessing.Pool(n_workers)
-    to_do = {key: pool.apply_async(job_worker, (f_pickled, df) + args, kwargs) for key, df in df_group}
+    to_do = {key: pool.apply_async(func, (df, ) + args, kwargs) for key, df in df_group}
     pool.close()
     if progress:
         to_do = tqdm(to_do.items(), total=len(to_do), ascii=True)
@@ -55,13 +55,14 @@ def df_group_apply_parallel(df_group: GroupBy, func, *args, n_workers=None, prog
     res_dict, err_dict = {}, {}
     for key, res in to_do:
         try:
-            res_dict[key] = res.get(0xffffff)
+            res_dict[key] = res.get(0xffff)
         except KeyboardInterrupt:
             print('Job canceled, only part of the result will returned!')
             break
         except Exception as e:
+            print(repr(e))
             err_dict[key] = e
-    return concat(res_dict, **(concat_kws or {}))
+    return concat(res_dict, with_keys=concat_keys)
 
 
 pd.core.groupby.DataFrameGroupBy.apply_parallel = df_group_apply_parallel
@@ -93,7 +94,7 @@ def df_apply_parallel(df: pd.DataFrame, func, *args, axis=0,
     df_group = df.groupby(grouper)
     f = lambda d: d.apply(func, axis=1, args=args, **kwargs)
 
-    ret = df_group.apply_parallel(f, n_workers=n_workers, progress=progress, gather_kws=dict(with_keys=False))
+    ret = df_group.apply_parallel(f, n_workers=n_workers, progress=progress, concat_keys=True)
 
     if transform:
         ret = ret.T

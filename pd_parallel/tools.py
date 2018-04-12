@@ -9,6 +9,7 @@
 """
 
 import os
+from functools import partial
 import pandas as pd
 from .apply_parallel import df_group_apply_parallel
 
@@ -28,10 +29,19 @@ def get_grouper(df: pd.DataFrame, by=None, axis=0, level=None,
     return grouper
 
 
-def double_groupby_apply_parallel(df: pd.DataFrame, func, *args, grouper_kws: dict, **kwargs):
+def double_groupby_apply_parallel(df: pd.DataFrame, func, *args, grouper_kws: dict, parallel_kws: dict = None, **kwargs):
     """"""
     grouper = get_grouper(df, **grouper_kws)
     df_group = df.groupby(grouper)
-    ret = df_group_apply_parallel(df_group, func, *args, **kwargs)
+    _ = grouper_kws.pop('section_size', None)
+    _ = grouper_kws.pop('section_count', None)
+
+    f = partial(_f, func=func, args=args, grouper_kws=grouper_kws, kwargs=kwargs)
+    ret = df_group_apply_parallel(df_group, f, concat_keys=False, **(parallel_kws or {}))
+    # ret = df_group_apply_parallel(df_group, func, *args, **kwargs)
     return ret
+
+
+def _f(df: pd.DataFrame, func, args, grouper_kws, kwargs):
+    return df.groupby(**grouper_kws).apply(func, *args, **kwargs)
 
