@@ -86,9 +86,8 @@ def df_apply_parallel(df: pd.DataFrame, func, *args, axis=0,
 
     if group_size is None:
         if group_count is None:
-            group_size = job_count // n_workers
-        else:
-            group_size = job_count // group_count
+            group_count = n_workers
+        group_size = int(np.ceil(job_count / group_count))
 
     grouper = pd.Series(np.arange(job_count) // group_size, index=df.index)
     df_group = df.groupby(grouper)

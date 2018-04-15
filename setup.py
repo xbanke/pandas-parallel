@@ -16,7 +16,7 @@ except ImportError:
 
 setup(
     name='pandas-parallel',
-    version='0.1.1',
+    version='0.1.2',
     description='pandas apply parallel',
     url='https://github.com/xbanke/pandas-parallel',
     author='quantpy',
