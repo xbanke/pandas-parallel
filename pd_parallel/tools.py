@@ -10,6 +10,7 @@
 
 import os
 from functools import partial
+import numpy as np
 import pandas as pd
 from .apply_parallel import df_group_apply_parallel
 
@@ -21,10 +22,11 @@ def get_grouper(df: pd.DataFrame, by=None, axis=0, level=None,
     # n_groups = df_group.ngroups
     n_groups = df_group.count().shape[0]
 
-    if section_size is None:
-        section_size = n_groups // section_count
+    if section_size:
+        section_count = int(np.ceil(n_groups / section_size))
+        # section_size = n_groups // section_count
 
-    grouper = [pd.Series(i // section_size, index=d.index) for i, (k, d) in enumerate(df_group)]
+    grouper = [pd.Series(i % section_count, index=d.index) for i, (k, d) in enumerate(df_group)]
     grouper = pd.concat(grouper)
     return grouper
 

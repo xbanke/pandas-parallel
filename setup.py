@@ -13,10 +13,12 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from pd_parallel import __version__
+
 
 setup(
     name='pandas-parallel',
-    version='0.1.2',
+    version=__version__,
     description='pandas apply parallel',
     url='https://github.com/xbanke/pandas-parallel',
     author='quantpy',
