@@ -47,21 +47,18 @@ def df_group_apply_parallel(df_group: GroupBy, func, *args, n_workers=None, prog
     pool = multiprocessing.Pool(n_workers)
     to_do = {key: pool.apply_async(func, (df, ) + args, kwargs) for key, df in df_group}
     pool.close()
-    if progress:
-        to_do = tqdm(to_do.items(), total=len(to_do), ascii=True)
-    else:
-        to_do = to_do.items()
 
     res_dict, err_dict = {}, {}
-    for key, res in to_do:
-        try:
-            res_dict[key] = res.get(0xffff)
-        except KeyboardInterrupt:
-            print('Job canceled, only part of the result will returned!')
-            break
-        except Exception as e:
-            print(repr(e))
-            err_dict[key] = e
+    with tqdm(to_do.items(), ascii=True, unit='group', desc='Processing', disable=not progress) as iterable:
+        for key, res in iterable:
+            try:
+                res_dict[key] = res.get(0xffff)
+            except KeyboardInterrupt:
+                print('Job canceled, only part of the result will returned!')
+                break
+            except Exception as e:
+                print(repr(e))
+                err_dict[key] = e
     return concat(res_dict, with_keys=concat_keys)
 
 
