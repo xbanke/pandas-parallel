@@ -9,7 +9,7 @@
 """
 
 
-from .apply_parallel import df_group_apply_parallel, df_apply_parallel
+from .apply_parallel import df_group_apply_parallel, df_apply_parallel, items_apply_parallel
 from .tools import get_grouper, double_groupby_apply_parallel
 
 

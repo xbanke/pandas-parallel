@@ -39,11 +39,14 @@ def double_groupby_apply_parallel(df: pd.DataFrame, func, *args, grouper_kws: di
     _ = grouper_kws.pop('section_count', None)
 
     f = partial(_f, func=func, args=args, grouper_kws=grouper_kws, kwargs=kwargs)
-    ret = df_group_apply_parallel(df_group, f, concat_keys=False, **(parallel_kws or {}))
+    ret = df_group_apply_parallel(df_group, f, **(parallel_kws or {}))
     # ret = df_group_apply_parallel(df_group, func, *args, **kwargs)
+    ret.index = ret.index.droplevel(0)
     return ret
 
 
 def _f(df: pd.DataFrame, func, args, grouper_kws, kwargs):
     return df.groupby(**grouper_kws).apply(func, *args, **kwargs)
 
+
+pd.DataFrame.double_groupby_apply_parallel = double_groupby_apply_parallel

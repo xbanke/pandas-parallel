@@ -14,5 +14,10 @@ import os
 
 def get_worker_count(n_workers=None):
     if n_workers is None:
-        n_workers = os.cpu_count() or 1
+        cpu_count = os.cpu_count() or 1
+        n_workers = cpu_count - 1 or 1
     return max(min(n_workers, os.cpu_count()), 1)
+
+
+
+
