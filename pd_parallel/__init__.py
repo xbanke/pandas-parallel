@@ -13,4 +13,4 @@ from .apply_parallel import df_group_apply_parallel, df_apply_parallel, items_ap
 from .tools import get_grouper, double_groupby_apply_parallel
 
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
