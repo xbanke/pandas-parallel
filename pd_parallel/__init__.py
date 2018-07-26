@@ -9,8 +9,11 @@
 """
 
 
-from .apply_parallel import df_group_apply_parallel, df_apply_parallel, items_apply_parallel
+from .apply_parallel import (df_group_apply_parallel,
+                             df_apply_parallel,
+                             items_apply_parallel,
+                             get_worker_count)
 from .tools import get_grouper, double_groupby_apply_parallel
 
 
-__version__ = '0.1.5'
+__version__ = '0.1.7'

@@ -47,7 +47,7 @@ def timeout_decorator(seconds, msg=''):
 
 
 class TimeoutJob(object):
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func, args: tuple, kwargs: dict):
         """"""
         self.func = func
         self.args = args

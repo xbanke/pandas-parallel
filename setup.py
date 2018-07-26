@@ -26,7 +26,7 @@ setup(
     license='MIT',
     packages=['pd_parallel'],
     keywords=['pandas', 'parallel'],
-    install_requires=['pandas', 'dill'],
+    install_requires=['pandas', 'numpy', 'tqdm'],
     zip_safe=False,
     include_package_data=True,
     classifiers=[
